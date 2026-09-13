@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MF Atlas Demo</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Mutual Fund Demo</h1>
+    <p class="subtitle">Sample client for the mf-atlas.space API &mdash; investor &rarr; account &rarr; mandate &rarr; order &rarr; payment</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="investors">1. Investors</button>
+    <button class="tab-btn" data-tab="accounts">2. Accounts</button>
+    <button class="tab-btn" data-tab="mandates">3. Mandates</button>
+    <button class="tab-btn" data-tab="schemes">4. Schemes</button>
+    <button class="tab-btn" data-tab="orders">5. Orders &amp; Payments</button>
+  </nav>
+
+  <main id="banner-area"></main>
+
+  <!-- ================= INVESTORS ================= -->
+  <section id="tab-investors" class="tab-panel active">
+    <div class="grid">
+      <div class="card">
+        <h2>Register investor</h2>
+        <form id="investor-form">
+          <fieldset>
+            <legend>Primary holder</legend>
+            <label>Name <input name="name" required /></label>
+            <label>PAN <input name="pan" required maxlength="10" style="text-transform:uppercase" /></label>
+            <label>Date of birth <input name="dob" type="date" required /></label>
+            <label>Mobile <input name="mobile" required /></label>
+            <label>Email <input name="email" type="email" required /></label>
+            <label>Gender
+              <select name="gender">
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Address</legend>
+            <label>Line 1 <input name="line1" required /></label>
+            <label>Line 2 <input name="line2" /></label>
+            <label>City <input name="city" required /></label>
+            <label>State <input name="state" required /></label>
+            <label>Pincode <input name="pincode" required /></label>
+            <label>Country <input name="country" value="IN" required /></label>
+          </fieldset>
+          <fieldset>
+            <legend>Bank account</legend>
+            <label>Account number <input name="account_no" required /></label>
+            <label>IFSC <input name="ifsc" required style="text-transform:uppercase" /></label>
+            <label>Account type
+              <select name="account_type">
+                <option value="SB">Savings (SB)</option>
+                <option value="CB">Current (CB)</option>
+                <option value="NE">NRE (NE)</option>
+                <option value="NO">NRO (NO)</option>
+              </select>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Classification</legend>
+            <label>Holding type
+              <select name="holding_type">
+                <option value="SINGLE">Single</option>
+                <option value="JOINT">Joint</option>
+                <option value="ANYONE_OR_SURVIVOR">Anyone or survivor</option>
+              </select>
+            </label>
+            <label>Tax status
+              <select name="tax_status">
+                <option value="INDIVIDUAL">Individual</option>
+                <option value="NRI_REPATRIABLE">NRI (repatriable)</option>
+                <option value="NRI_NON_REPATRIABLE">NRI (non-repatriable)</option>
+                <option value="MINOR">Minor</option>
+                <option value="HUF">HUF</option>
+                <option value="COMPANY">Company</option>
+                <option value="TRUST">Trust</option>
+              </select>
+            </label>
+          </fieldset>
+          <button type="submit">Register investor</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Investors</h2>
+          <div class="actions">
+            <button id="btn-sync-investors" class="secondary">Sync now</button>
+            <button id="btn-refresh-investors" class="secondary">Refresh list</button>
+          </div>
+        </div>
+        <table id="investors-table" class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th><th>Actions</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="investor-detail" class="card hidden">
+      <h2>Investor detail</h2>
+      <div id="investor-detail-body"></div>
+    </div>
+  </section>
+
+  <!-- ================= ACCOUNTS ================= -->
+  <section id="tab-accounts" class="tab-panel">
+    <div class="grid">
+      <div class="card">
+        <h2>Create investment account</h2>
+        <form id="account-form">
+          <label>Investor
+            <select name="investor_id" id="account-investor-select" class="investor-select" required></select>
+          </label>
+          <label>Code (2 characters) <input name="code" maxlength="2" required /></label>
+          <label>Name <input name="name" required /></label>
+          <button type="submit">Create account</button>
+        </form>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Accounts</h2>
+          <button id="btn-refresh-accounts" class="secondary">Refresh</button>
+        </div>
+        <table id="accounts-table" class="data-table">
+          <thead><tr><th>ID</th><th>Investor</th><th>Code</th><th>Name</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MANDATES ================= -->
+  <section id="tab-mandates" class="tab-panel">
+    <div class="grid">
+      <div class="card">
+        <h2>Register mandate (eNACH)</h2>
+        <form id="mandate-form">
+          <label>Investor
+            <select name="investor_id" id="mandate-investor-select" class="investor-select" required></select>
+          </label>
+          <label>Investment account
+            <select name="investment_account_id" id="mandate-account-select" required></select>
+          </label>
+          <label>Bank account number <input name="account_no" required /></label>
+          <label>IFSC <input name="ifsc" required style="text-transform:uppercase" /></label>
+          <label>Account type
+            <select name="account_type">
+              <option value="SB">Savings (SB)</option>
+              <option value="CB">Current (CB)</option>
+              <option value="NE">NRE (NE)</option>
+              <option value="NO">NRO (NO)</option>
+            </select>
+          </label>
+          <label>Ceiling amount <input name="amount" type="number" min="1" step="1" required /></label>
+          <label>Start date <input name="start_date" type="date" required /></label>
+          <label>End date <input name="end_date" type="date" required /></label>
+          <button type="submit">Register mandate</button>
+        </form>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Mandates</h2>
+          <button id="btn-refresh-mandates" class="secondary">Refresh</button>
+        </div>
+        <table id="mandates-table" class="data-table">
+          <thead><tr><th>ID</th><th>Investor</th><th>Type</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCHEMES ================= -->
+  <section id="tab-schemes" class="tab-panel">
+    <div class="card">
+      <h2>Search schemes</h2>
+      <div class="search-row">
+        <input id="scheme-search" placeholder="Search by scheme name, e.g. 'bluechip'" />
+        <button id="btn-scheme-search">Search</button>
+      </div>
+      <table id="schemes-table" class="data-table">
+        <thead>
+          <tr><th>Code</th><th>Name</th><th>AMC</th><th>NAV</th><th>Min purchase</th><th>Multiple</th><th>Purchase allowed</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= ORDERS & PAYMENTS ================= -->
+  <section id="tab-orders" class="tab-panel">
+    <div class="grid">
+      <div class="card">
+        <h2>Place purchase order</h2>
+        <form id="order-form">
+          <label>Investor (must be REGISTERED)
+            <select name="investor_id" id="order-investor-select" class="investor-select order-investor-select" required></select>
+          </label>
+          <label>Investment account
+            <select name="investment_account_id" id="order-account-select" required></select>
+          </label>
+          <label>Scheme code <input name="scheme_code" id="order-scheme-code" required /></label>
+          <div id="order-scheme-info" class="hint"></div>
+          <label>Amount <input name="amount" type="number" min="1" step="1" required /></label>
+          <label>Purchase type
+            <select name="purchase_type">
+              <option value="FRESH">Fresh</option>
+              <option value="ADDITIONAL">Additional</option>
+            </select>
+          </label>
+          <label>Bank account ID (optional) <input name="bank_account_id" /></label>
+          <label>Mandate (optional, for MANDATE payment mode)
+            <select name="mandate_id" id="order-mandate-select">
+              <option value="">-- none --</option>
+            </select>
+          </label>
+          <button type="submit">Create order</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Orders</h2>
+          <button id="btn-refresh-orders" class="secondary">Refresh</button>
+        </div>
+        <table id="orders-table" class="data-table">
+          <thead><tr><th>ID</th><th>Scheme</th><th>Amount</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="payment-panel" class="card hidden">
+      <h2>Pay for order <span id="payment-order-id"></span></h2>
+      <form id="payment-form">
+        <label>Payment mode
+          <select name="mode" id="payment-mode-select">
+            <option value="MANDATE">Mandate (auto-debit)</option>
+            <option value="UPI">UPI</option>
+            <option value="NETBANKING">Netbanking</option>
+            <option value="CHEQUE">Cheque</option>
+            <option value="NEFT_RTGS">NEFT/RTGS</option>
+          </select>
+        </label>
+
+        <div class="mode-fields" data-mode="MANDATE">
+          <label>Mandate
+            <select name="mandate_id" id="payment-mandate-select"></select>
+          </label>
+        </div>
+        <div class="mode-fields hidden" data-mode="UPI">
+          <label>VPA (e.g. name@bank) <input name="vpa" /></label>
+        </div>
+        <div class="mode-fields hidden" data-mode="NETBANKING">
+          <label>Bank account ID <input name="bank_account_id" /></label>
+        </div>
+        <div class="mode-fields hidden" data-mode="CHEQUE">
+          <label>Cheque number <input name="cheque_number" /></label>
+          <label>Cheque date <input name="cheque_date" type="date" /></label>
+        </div>
+        <div class="mode-fields hidden" data-mode="NEFT_RTGS">
+          <p class="hint">No fields needed now &mdash; you'll submit the UTR once you have it.</p>
+        </div>
+
+        <button type="submit">Initiate payment</button>
+      </form>
+      <div id="payment-result"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sample app &mdash; not for production use. No auth on this app itself; see README.md.</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/investors.js"></script>
+  <script src="js/accounts.js"></script>
+  <script src="js/mandates.js"></script>
+  <script src="js/schemes.js"></script>
+  <script src="js/orders.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
