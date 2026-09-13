@@ -189,9 +189,18 @@
         <input id="scheme-search" placeholder="Search by scheme name, e.g. 'bluechip'" />
         <button id="btn-scheme-search">Search</button>
       </div>
+      <div class="search-row">
+        <input id="scheme-filter-amc" placeholder="AMC (e.g. SBIMUTUALFUND_MF)" />
+        <input id="scheme-filter-category" placeholder="Category (e.g. EQUITY)" />
+        <input id="scheme-filter-plan" placeholder="Plan (e.g. NORMAL)" />
+        <input id="scheme-filter-option" placeholder="Option" />
+        <label><input type="checkbox" id="scheme-filter-purchase-allowed" /> Purchase allowed only</label>
+        <button id="btn-scheme-filter">Apply filters</button>
+        <button id="btn-scheme-filter-clear" class="secondary">Clear</button>
+      </div>
       <table id="schemes-table" class="data-table">
         <thead>
-          <tr><th>Code</th><th>Name</th><th>AMC</th><th>NAV</th><th>Min purchase</th><th>Multiple</th><th>Purchase allowed</th></tr>
+          <tr><th>Code</th><th>Name</th><th>AMC</th><th>Category</th><th>NAV</th><th>Min purchase</th><th>Multiple</th><th>Purchase allowed</th><th></th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -211,6 +220,7 @@
             <select name="investment_account_id" id="order-account-select" required></select>
           </label>
           <label>Scheme code <input name="scheme_code" id="order-scheme-code" required /></label>
+          <div class="hint">Not sure of the code? Filter and pick a fund on the <a href="#" data-goto-tab="schemes">Schemes</a> tab, then click "Use" on a row.</div>
           <div id="order-scheme-info" class="hint"></div>
           <label>Amount <input name="amount" type="number" min="1" step="1" required /></label>
           <label>Purchase type

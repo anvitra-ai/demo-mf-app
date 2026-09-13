@@ -28,19 +28,51 @@ type Scheme struct {
 	UpdatedAt          string  `json:"updated_at"`
 }
 
-func (c *Client) ListSchemes(ctx context.Context, search string, limit string) ([]Scheme, error) {
-	var out ListEnvelope[Scheme]
+// SchemeFilters are the optional query params GET /api/schemes/v1/ accepts
+// for narrowing down the master list (per the OpenAPI spec: amc, search,
+// plan, option, category, purchase_allowed, sip_allowed, limit, cursor).
+type SchemeFilters struct {
+	Search          string
+	AMC             string
+	Category        string
+	Plan            string
+	Option          string
+	PurchaseAllowed string // "true"/"false", left empty for no filter
+	SIPAllowed      string
+	Limit           string
+}
+
+func (c *Client) ListSchemes(ctx context.Context, f SchemeFilters) ([]Scheme, error) {
+	var out []Scheme
 	q := map[string]string{}
-	if search != "" {
-		q["search"] = search
+	if f.Search != "" {
+		q["search"] = f.Search
 	}
-	if limit != "" {
-		q["limit"] = limit
+	if f.AMC != "" {
+		q["amc"] = f.AMC
+	}
+	if f.Category != "" {
+		q["category"] = f.Category
+	}
+	if f.Plan != "" {
+		q["plan"] = f.Plan
+	}
+	if f.Option != "" {
+		q["option"] = f.Option
+	}
+	if f.PurchaseAllowed != "" {
+		q["purchase_allowed"] = f.PurchaseAllowed
+	}
+	if f.SIPAllowed != "" {
+		q["sip_allowed"] = f.SIPAllowed
+	}
+	if f.Limit != "" {
+		q["limit"] = f.Limit
 	}
 	if err := c.do(ctx, "GET", "/api/schemes/v1/", nil, &out, WithQuery(q)); err != nil {
 		return nil, err
 	}
-	return out.Data, nil
+	return out, nil
 }
 
 func (c *Client) GetScheme(ctx context.Context, code string) (*Scheme, error) {

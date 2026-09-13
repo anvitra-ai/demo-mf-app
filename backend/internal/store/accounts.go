@@ -26,21 +26,3 @@ func (s *Store) GetAccount(ctx context.Context, id string) (*models.AccountDoc, 
 	}
 	return &doc, nil
 }
-
-func (s *Store) ListAccounts(ctx context.Context, investorID string) ([]models.AccountDoc, error) {
-	filter := bson.M{}
-	if investorID != "" {
-		filter["investor_id"] = investorID
-	}
-	cur, err := s.Accounts.Find(ctx, filter, options.Find().SetSort(bson.M{"created_at": -1}))
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	docs := []models.AccountDoc{}
-	if err := cur.All(ctx, &docs); err != nil {
-		return nil, err
-	}
-	return docs, nil
-}

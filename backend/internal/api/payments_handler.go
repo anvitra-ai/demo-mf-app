@@ -115,6 +115,30 @@ func (a *App) handleCreatePayment(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, doc)
 }
 
+func (a *App) handleListPayments(w http.ResponseWriter, r *http.Request) {
+	investorID := r.URL.Query().Get("investor_id")
+	payments, err := a.MF.ListPayments(r.Context(), investorID)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+	docs := make([]*models.PaymentDoc, 0, len(payments))
+	for i := range payments {
+		prev, err := a.Store.GetPayment(r.Context(), payments[i].ID)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		doc := paymentToDoc(&payments[i], prev)
+		if err := a.Store.UpsertPayment(r.Context(), doc); err != nil {
+			writeError(w, err)
+			return
+		}
+		docs = append(docs, doc)
+	}
+	writeJSON(w, http.StatusOK, docs)
+}
+
 func (a *App) handleGetPayment(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	doc, err := a.Store.GetPayment(r.Context(), id)

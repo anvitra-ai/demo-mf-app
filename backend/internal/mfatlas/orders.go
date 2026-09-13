@@ -50,6 +50,18 @@ func (c *Client) CreateOrder(ctx context.Context, req CreateOrderRequest, idempo
 	return &out, nil
 }
 
+func (c *Client) ListOrders(ctx context.Context, investorID string) ([]Order, error) {
+	var out []Order
+	opts := []RequestOption{}
+	if investorID != "" {
+		opts = append(opts, WithQuery(map[string]string{"investor_id": investorID}))
+	}
+	if err := c.do(ctx, "GET", "/api/orders/v1/", nil, &out, opts...); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *Client) GetOrder(ctx context.Context, id string) (*Order, error) {
 	var out Order
 	if err := c.do(ctx, "GET", "/api/orders/v1/"+id, nil, &out); err != nil {

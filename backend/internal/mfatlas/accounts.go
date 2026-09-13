@@ -34,7 +34,7 @@ func (c *Client) GetInvestmentAccount(ctx context.Context, id string) (*Investme
 }
 
 func (c *Client) ListInvestmentAccounts(ctx context.Context, investorID string) ([]InvestmentAccount, error) {
-	var out ListEnvelope[InvestmentAccount]
+	var out []InvestmentAccount
 	opts := []RequestOption{}
 	if investorID != "" {
 		opts = append(opts, WithQuery(map[string]string{"investor_id": investorID}))
@@ -42,5 +42,5 @@ func (c *Client) ListInvestmentAccounts(ctx context.Context, investorID string) 
 	if err := c.do(ctx, "GET", "/api/investment-accounts/v1/", nil, &out, opts...); err != nil {
 		return nil, err
 	}
-	return out.Data, nil
+	return out, nil
 }

@@ -27,24 +27,6 @@ func (s *Store) GetOrder(ctx context.Context, id string) (*models.OrderDoc, erro
 	return &doc, nil
 }
 
-func (s *Store) ListOrders(ctx context.Context, investorID string) ([]models.OrderDoc, error) {
-	filter := bson.M{}
-	if investorID != "" {
-		filter["investor_id"] = investorID
-	}
-	cur, err := s.Orders.Find(ctx, filter, options.Find().SetSort(bson.M{"created_at": -1}))
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	docs := []models.OrderDoc{}
-	if err := cur.All(ctx, &docs); err != nil {
-		return nil, err
-	}
-	return docs, nil
-}
-
 func (s *Store) ListNonTerminalOrders(ctx context.Context) ([]models.OrderDoc, error) {
 	statuses := make([]string, 0, len(models.OrderNonTerminal))
 	for st := range models.OrderNonTerminal {

@@ -93,10 +93,24 @@ func (a *App) handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleListOrders(w http.ResponseWriter, r *http.Request) {
 	investorID := r.URL.Query().Get("investor_id")
-	docs, err := a.Store.ListOrders(r.Context(), investorID)
+	orders, err := a.MF.ListOrders(r.Context(), investorID)
 	if err != nil {
 		writeError(w, err)
 		return
+	}
+	docs := make([]*models.OrderDoc, 0, len(orders))
+	for i := range orders {
+		prev, err := a.Store.GetOrder(r.Context(), orders[i].ID)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		doc := orderToDoc(&orders[i], prev)
+		if err := a.Store.UpsertOrder(r.Context(), doc); err != nil {
+			writeError(w, err)
+			return
+		}
+		docs = append(docs, doc)
 	}
 	writeJSON(w, http.StatusOK, docs)
 }

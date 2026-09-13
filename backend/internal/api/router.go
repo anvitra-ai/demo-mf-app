@@ -49,6 +49,7 @@ func NewRouter(app *App, frontendDir string) http.Handler {
 	mux.HandleFunc("GET /api/orders/{id}/events", app.handleGetOrderEvents)
 
 	mux.HandleFunc("POST /api/payments", app.handleCreatePayment)
+	mux.HandleFunc("GET /api/payments", app.handleListPayments)
 	mux.HandleFunc("GET /api/payments/{id}", app.handleGetPayment)
 	mux.HandleFunc("POST /api/payments/{id}/refresh", app.handleRefreshPayment)
 	mux.HandleFunc("POST /api/payments/{id}/utr", app.handleSubmitUTR)

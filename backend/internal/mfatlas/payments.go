@@ -48,6 +48,18 @@ func (c *Client) CreatePayment(ctx context.Context, req CreatePaymentRequest, id
 	return &out, nil
 }
 
+func (c *Client) ListPayments(ctx context.Context, investorID string) ([]Payment, error) {
+	var out []Payment
+	opts := []RequestOption{}
+	if investorID != "" {
+		opts = append(opts, WithQuery(map[string]string{"investor_id": investorID}))
+	}
+	if err := c.do(ctx, "GET", "/api/payments/v1/", nil, &out, opts...); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *Client) GetPayment(ctx context.Context, id string) (*Payment, error) {
 	var out Payment
 	if err := c.do(ctx, "GET", "/api/payments/v1/"+id, nil, &out); err != nil {

@@ -27,24 +27,6 @@ func (s *Store) GetMandate(ctx context.Context, id string) (*models.MandateDoc, 
 	return &doc, nil
 }
 
-func (s *Store) ListMandates(ctx context.Context, investorID string) ([]models.MandateDoc, error) {
-	filter := bson.M{}
-	if investorID != "" {
-		filter["investor_id"] = investorID
-	}
-	cur, err := s.Mandates.Find(ctx, filter, options.Find().SetSort(bson.M{"created_at": -1}))
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	docs := []models.MandateDoc{}
-	if err := cur.All(ctx, &docs); err != nil {
-		return nil, err
-	}
-	return docs, nil
-}
-
 func (s *Store) ListNonTerminalMandates(ctx context.Context) ([]models.MandateDoc, error) {
 	statuses := make([]string, 0, len(models.MandateNonTerminal))
 	for st := range models.MandateNonTerminal {

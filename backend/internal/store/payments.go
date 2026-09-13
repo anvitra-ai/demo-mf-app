@@ -27,24 +27,6 @@ func (s *Store) GetPayment(ctx context.Context, id string) (*models.PaymentDoc, 
 	return &doc, nil
 }
 
-func (s *Store) ListPayments(ctx context.Context, investorID string) ([]models.PaymentDoc, error) {
-	filter := bson.M{}
-	if investorID != "" {
-		filter["investor_id"] = investorID
-	}
-	cur, err := s.Payments.Find(ctx, filter, options.Find().SetSort(bson.M{"created_at": -1}))
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	docs := []models.PaymentDoc{}
-	if err := cur.All(ctx, &docs); err != nil {
-		return nil, err
-	}
-	return docs, nil
-}
-
 func (s *Store) ListNonTerminalPayments(ctx context.Context) ([]models.PaymentDoc, error) {
 	statuses := make([]string, 0, len(models.PaymentNonTerminal))
 	for st := range models.PaymentNonTerminal {

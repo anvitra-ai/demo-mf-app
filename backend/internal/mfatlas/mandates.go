@@ -42,6 +42,18 @@ func (c *Client) CreateMandate(ctx context.Context, req CreateMandateRequest) (*
 	return &out, nil
 }
 
+func (c *Client) ListMandates(ctx context.Context, investorID string) ([]Mandate, error) {
+	var out []Mandate
+	opts := []RequestOption{}
+	if investorID != "" {
+		opts = append(opts, WithQuery(map[string]string{"investor_id": investorID}))
+	}
+	if err := c.do(ctx, "GET", "/api/mandates/v1/", nil, &out, opts...); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GetMandate refreshes status live from the exchange before returning
 // (guide §3.2) — always call this fresh before using a mandate for payment.
 func (c *Client) GetMandate(ctx context.Context, id string) (*Mandate, error) {

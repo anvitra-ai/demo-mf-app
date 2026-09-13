@@ -1,5 +1,9 @@
 // Tab navigation + app bootstrap + light polling so status changes driven
 // by webhooks/reconciliation on the backend show up without a manual click.
+function gotoTab(name) {
+  document.querySelector(`.tab-btn[data-tab="${name}"]`)?.click();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const panels = document.querySelectorAll(".tab-panel");
@@ -10,6 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
       panels.forEach((p) => p.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+    });
+  });
+
+  document.querySelectorAll("[data-goto-tab]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      gotoTab(link.dataset.gotoTab);
     });
   });
 

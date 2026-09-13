@@ -27,20 +27,6 @@ func (s *Store) GetInvestor(ctx context.Context, id string) (*models.InvestorDoc
 	return &doc, nil
 }
 
-func (s *Store) ListInvestors(ctx context.Context) ([]models.InvestorDoc, error) {
-	cur, err := s.Investors.Find(ctx, bson.M{}, options.Find().SetSort(bson.M{"created_at": -1}))
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	docs := []models.InvestorDoc{}
-	if err := cur.All(ctx, &docs); err != nil {
-		return nil, err
-	}
-	return docs, nil
-}
-
 func (s *Store) ListNonTerminalInvestors(ctx context.Context) ([]models.InvestorDoc, error) {
 	statuses := make([]string, 0, len(models.InvestorNonTerminal))
 	for st := range models.InvestorNonTerminal {

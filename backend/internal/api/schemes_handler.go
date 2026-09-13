@@ -1,14 +1,27 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+
+	"demo-mf-app/internal/mfatlas"
+)
 
 func (a *App) handleListSchemes(w http.ResponseWriter, r *http.Request) {
-	search := r.URL.Query().Get("search")
-	limit := r.URL.Query().Get("limit")
+	q := r.URL.Query()
+	limit := q.Get("limit")
 	if limit == "" {
 		limit = "20"
 	}
-	schemes, err := a.MF.ListSchemes(r.Context(), search, limit)
+	schemes, err := a.MF.ListSchemes(r.Context(), mfatlas.SchemeFilters{
+		Search:          q.Get("search"),
+		AMC:             q.Get("amc"),
+		Category:        q.Get("category"),
+		Plan:            q.Get("plan"),
+		Option:          q.Get("option"),
+		PurchaseAllowed: q.Get("purchase_allowed"),
+		SIPAllowed:      q.Get("sip_allowed"),
+		Limit:           limit,
+	})
 	if err != nil {
 		writeError(w, err)
 		return

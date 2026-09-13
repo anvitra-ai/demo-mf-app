@@ -73,6 +73,12 @@ func investorToDoc(inv *mfatlas.Investor, prev *models.InvestorDoc) *models.Inve
 	} else {
 		doc.CreatedAt = now
 	}
+	if doc.Name == "" && inv.PrimaryHolder != nil {
+		doc.Name = inv.PrimaryHolder.Name
+		doc.PAN = inv.PrimaryHolder.PAN
+		doc.Email = inv.PrimaryHolder.Email
+		doc.Mobile = inv.PrimaryHolder.Mobile
+	}
 	return doc
 }
 
@@ -108,10 +114,24 @@ func (a *App) handleCreateInvestor(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleListInvestors(w http.ResponseWriter, r *http.Request) {
-	docs, err := a.Store.ListInvestors(r.Context())
+	investors, err := a.MF.ListInvestors(r.Context())
 	if err != nil {
 		writeError(w, err)
 		return
+	}
+	docs := make([]*models.InvestorDoc, 0, len(investors))
+	for i := range investors {
+		prev, err := a.Store.GetInvestor(r.Context(), investors[i].ID)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		doc := investorToDoc(&investors[i], prev)
+		if err := a.Store.UpsertInvestor(r.Context(), doc); err != nil {
+			writeError(w, err)
+			return
+		}
+		docs = append(docs, doc)
 	}
 	writeJSON(w, http.StatusOK, docs)
 }

@@ -50,16 +50,23 @@ type ProviderStep struct {
 	Timestamp string `json:"timestamp"`
 }
 
+type InvestorProvider struct {
+	Type       string `json:"type"`
+	ClientCode string `json:"client_code"`
+	Status     string `json:"status"`
+}
+
 type Investor struct {
-	ID            string         `json:"id"`
-	Status        string         `json:"status"`
-	Provider      string         `json:"provider"`
-	Providers     map[string]any `json:"providers"`
-	AuthLink      string         `json:"auth_link"`
-	ClientRef     string         `json:"client_ref"`
-	CreatedAt     string         `json:"created_at"`
-	UpdatedAt     string         `json:"updated_at"`
-	ProviderSteps []ProviderStep `json:"provider_steps"`
+	ID            string             `json:"id"`
+	Status        string             `json:"status"`
+	Provider      string             `json:"provider"`
+	Providers     []InvestorProvider `json:"providers"`
+	AuthLink      string             `json:"auth_link"`
+	ClientRef     string             `json:"client_ref"`
+	CreatedAt     string             `json:"created_at"`
+	UpdatedAt     string             `json:"updated_at"`
+	ProviderSteps []ProviderStep     `json:"provider_steps"`
+	PrimaryHolder *PrimaryHolder     `json:"primary_holder"`
 }
 
 type InvestorBankAccount struct {
@@ -87,6 +94,14 @@ func (c *Client) CreateInvestor(ctx context.Context, req CreateInvestorRequest) 
 		return nil, err
 	}
 	return &out, nil
+}
+
+func (c *Client) ListInvestors(ctx context.Context) ([]Investor, error) {
+	var out []Investor
+	if err := c.do(ctx, "GET", "/api/investors/v1/", nil, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *Client) GetInvestor(ctx context.Context, id string, withAuthLink bool) (*Investor, error) {

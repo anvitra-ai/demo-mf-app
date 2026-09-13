@@ -36,10 +36,11 @@ func (e *APIError) IsRetryable() bool {
 }
 
 type envelope struct {
-	Success bool            `json:"success"`
-	Data    json.RawMessage `json:"data"`
-	Message string          `json:"message"`
-	Error   *struct {
+	Success    bool            `json:"success"`
+	Data       json.RawMessage `json:"data"`
+	NextCursor string          `json:"next_cursor"`
+	Message    string          `json:"message"`
+	Error      *struct {
 		Code           string           `json:"code"`
 		Message        string           `json:"message"`
 		Details        []map[string]any `json:"details"`
@@ -143,13 +144,6 @@ func parseAPIError(status int, raw []byte) *APIError {
 		ProviderRemark: env.Error.ProviderRemark,
 		RequestID:      env.Error.RequestID,
 	}
-}
-
-// ListEnvelope is the shape of `data` for every cursor-paginated list
-// endpoint (guide §0: "Pagination"): { data: [...], next_cursor }.
-type ListEnvelope[T any] struct {
-	Data       []T    `json:"data"`
-	NextCursor string `json:"next_cursor"`
 }
 
 // requestOpts customizes a single call.

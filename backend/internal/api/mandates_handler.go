@@ -85,10 +85,24 @@ func (a *App) handleCreateMandate(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleListMandates(w http.ResponseWriter, r *http.Request) {
 	investorID := r.URL.Query().Get("investor_id")
-	docs, err := a.Store.ListMandates(r.Context(), investorID)
+	mandates, err := a.MF.ListMandates(r.Context(), investorID)
 	if err != nil {
 		writeError(w, err)
 		return
+	}
+	docs := make([]*models.MandateDoc, 0, len(mandates))
+	for i := range mandates {
+		prev, err := a.Store.GetMandate(r.Context(), mandates[i].ID)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		doc := mandateToDoc(&mandates[i], prev)
+		if err := a.Store.UpsertMandate(r.Context(), doc); err != nil {
+			writeError(w, err)
+			return
+		}
+		docs = append(docs, doc)
 	}
 	writeJSON(w, http.StatusOK, docs)
 }
